@@ -1,0 +1,20 @@
+spring:
+  test: "dev"
+
+aws:
+  s3:
+    bucket:
+      logging: ${LOGGING_BUCKET}
+      raw: ${RAW_BUCKET}
+    key:
+      raw: ${RAW_KEY}
+      logging: ${LOGGING_KEY}
+google:
+  api:
+    clientid: ${CLIENT_ID}
+    clientsecret: ${CLIENT_SECRET}
+    authuri: ${AUTH_URI}
+    tokenuri: ${TOKEN_URI}
+    certurl: ${AUTH_PROVIDER_CERT_URL}
+    redirecturi: ${REDIRECT_URI}
+    token: ${LONG_TERM_TOKEN}
