@@ -56,7 +56,7 @@ public class GetDataSaveToS3 {
 
         //Build the request URL
         HttpUrl.Builder urlBuilder = HttpUrl.parse(videoEndpoint).newBuilder();
-        urlBuilder.addQueryParameter("part", "snippet,statistics");
+        urlBuilder.addQueryParameter("part", "snippet,statistics,contentDetails,status");
         urlBuilder.addQueryParameter("id", videoId);
 
         //Build the request itself
@@ -93,6 +93,8 @@ public class GetDataSaveToS3 {
         JsonObject video = items.get(0).getAsJsonObject();
         JsonObject snippet = video.getAsJsonObject("snippet");
         JsonObject statistics = video.getAsJsonObject("statistics");
+        JsonObject contentDetails = video.getAsJsonObject("contentDetails");
+        JsonObject status = video.getAsJsonObject("status");
 
         //Build the flattened object to save to S3 bucket
         JsonObject flattened = new JsonObject();
@@ -103,11 +105,20 @@ public class GetDataSaveToS3 {
         flattened.addProperty("description", snippet.get("description").getAsString());
         flattened.addProperty("channelTitle", snippet.get("channelTitle").getAsString());
         flattened.add("tags", snippet.get("tags"));
+        flattened.addProperty("liveBroadcastContent", snippet.get("liveBroadcastContent").getAsString());
         flattened.addProperty("categoryId", snippet.get("categoryId").getAsInt());
         flattened.addProperty("viewCount", statistics.get("viewCount").getAsInt());
         flattened.addProperty("likeCount", statistics.get("likeCount").getAsInt());
         flattened.addProperty("dislikeCount", statistics.get("dislikeCount").getAsInt());
         flattened.addProperty("commentCount", statistics.get("commentCount").getAsInt());
+        flattened.addProperty("duration", contentDetails.get("duration").getAsString());
+        flattened.addProperty("definition", contentDetails.get("definition").getAsString());
+        flattened.addProperty("caption", contentDetails.get("caption").getAsString());
+        flattened.addProperty("licensedContent", contentDetails.get("licensedContent").getAsBoolean());
+        flattened.addProperty("hasCustomThumbnail", contentDetails.get("hasCustomThumbnail").getAsBoolean());
+        flattened.addProperty("privacyStatus", status.get("privacyStatus").getAsString());
+        flattened.addProperty("publicStatsViewable", status.get("publicStatsViewable").getAsBoolean());
+        flattened.addProperty("madeForKids", status.get("madeForKids").getAsBoolean());
 
         log.info("Successfully Flattened the Json Data!");
         return flattened;
