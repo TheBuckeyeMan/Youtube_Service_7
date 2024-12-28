@@ -65,7 +65,7 @@ public class GetNewVideosList {
     private String extractedVideoIdFromKey(String key, String rawBuckeyKey){
         if (key.startsWith(rawBuckeyKey)){
             String fileName = key.substring(rawBuckeyKey.length());
-            int dashIndex = fileName.indexOf("-");
+            int dashIndex = fileName.indexOf("~");
             if(dashIndex > 0){
                 return fileName.substring(0, dashIndex);
             }

@@ -123,7 +123,7 @@ public class GetDataSaveToS3 {
 
         //Configure the File name
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
-        String fileName = String.format("%s-%s.json", videoId, timestamp);
+        String fileName = String.format("%s~%s.json", videoId, timestamp);
         String s3Key = rawBucketKey + fileName;
 
         try{
