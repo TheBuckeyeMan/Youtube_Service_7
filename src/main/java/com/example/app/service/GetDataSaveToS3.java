@@ -35,6 +35,8 @@ public class GetDataSaveToS3 {
 
                 //Flatten Video Data
                 JsonObject flattenedData = flattenVideoData(videoDataJson, videoId);
+                log.info("Serialized data for video {}: {}", videoId, flattenedData.toString());
+
 
                 //Save contents to S3
                 SaveToS3(videoId, flattenedData, rawBucketName, rawBucketKey);
@@ -47,14 +49,14 @@ public class GetDataSaveToS3 {
     }
 
     //This method is responsable for making the request to the Youtube API for video and returns video data 
-    private String fetchVideoData(String videoId, String accessToken, String videoEndpoint){
+    private String fetchVideoData(String accessToken, String videoId, String videoEndpoint){
         log.info("Begining to fetch video data for video: " + videoId + " from Youtube API");
 
         OkHttpClient client = new OkHttpClient();
 
         //Build the request URL
         HttpUrl.Builder urlBuilder = HttpUrl.parse(videoEndpoint).newBuilder();
-        urlBuilder.addQueryParameter("part", "snippet");
+        urlBuilder.addQueryParameter("part", "snippet,statistics");
         urlBuilder.addQueryParameter("id", videoId);
 
         //Build the request itself
@@ -70,6 +72,7 @@ public class GetDataSaveToS3 {
                 throw new RuntimeException("Failed to fetch video data for video: " + videoId + " HTTP Code: " + response.code());
             }
             log.info("Successfully fetched data for video: " + videoId);
+            //log.info("Response Body Is: " + response.body().string());
             return response.body().string();
         } catch (Exception e){
             throw new RuntimeException("Error fetching video data for video: " + videoId, e);
@@ -79,7 +82,7 @@ public class GetDataSaveToS3 {
     //Method is responsable for flattening the video data and returning a jsonObject
     private JsonObject flattenVideoData(String videoDataJson, String videoId){
         log.info("Begining to flatten the video data for: " + videoId);
-
+        try{
         JsonObject jsonResponse = JsonParser.parseString(videoDataJson).getAsJsonObject();
         JsonArray items = jsonResponse.getAsJsonArray("items");
 
@@ -106,8 +109,12 @@ public class GetDataSaveToS3 {
         flattened.addProperty("dislikeCount", statistics.get("dislikeCount").getAsInt());
         flattened.addProperty("commentCount", statistics.get("commentCount").getAsInt());
 
-        log.info(flattened.toString());
+        log.info("Successfully Flattened the Json Data!");
         return flattened;
+    } catch (Exception e){
+        log.error("Error flattening video data for video: " + videoId, e);
+        return null;
+    }
     }
 
     //This method is responsable for taking out flatted json object and saving to s3 bucket
