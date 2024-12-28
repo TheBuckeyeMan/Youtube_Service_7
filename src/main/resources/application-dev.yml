@@ -24,3 +24,4 @@ youtube:
   data:
     api:
       endpoint: ${ENDPOINT}
+      videoendpoint: ${VIDEO_ENDPOINT}

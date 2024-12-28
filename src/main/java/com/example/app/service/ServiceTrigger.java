@@ -1,9 +1,7 @@
 package com.example.app.service;
 
-import java.io.File;
-import java.time.LocalDateTime;
-import java.util.List;
 
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +13,7 @@ public class ServiceTrigger {
     private AccessToken AccessToken;
     private GetAllVideoIds GetAllVideoIds;
     private GetNewVideosList getNewVideosList;
+    private GetDataSaveToS3 getDataSaveToS3;
 
 
 
@@ -54,10 +53,14 @@ public class ServiceTrigger {
     @Value("${aws.s3.key.raw}")
     String rawBucketKey;
 
-    public ServiceTrigger(AccessToken AccessToken, GetAllVideoIds GetAllVideoIds, GetNewVideosList getNewVideosList){
+    @Value("${youtube.data.api.videoendpoint}")
+    private String videoEndpoint;
+
+    public ServiceTrigger(AccessToken AccessToken, GetAllVideoIds GetAllVideoIds, GetNewVideosList getNewVideosList, GetDataSaveToS3 getDataSaveToS3){
         this.AccessToken = AccessToken;
         this.GetAllVideoIds = GetAllVideoIds;
         this.getNewVideosList = getNewVideosList;
+        this.getDataSaveToS3 = getDataSaveToS3;
     }
 
     public void TriggerService(){
@@ -77,6 +80,7 @@ public class ServiceTrigger {
         List<String> newVideos = getNewVideosList.newVideos(allVideos, rawBucketName, rawBucketKey);
 
         //4. Make Request to video endpoint for each video and save to S3 as a new file in format<videoId>-<timestamp>.json
+        getDataSaveToS3.saveVideos(newVideos, accessToken, videoEndpoint, rawBucketName, rawBucketKey);
 
         //Log Completion
         log.info("The Service has successfully complete, new data has been landed in the landing bucket!");

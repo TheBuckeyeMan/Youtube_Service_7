@@ -36,7 +36,6 @@ public class GetNewVideosList {
         return newVideos;
     }
 
-
     private List<String> getExistingVideoIds(String rawBucketName, String rawBucketKey){
         List<String> existingVideos = new ArrayList<>();
 
@@ -73,7 +72,4 @@ public class GetNewVideosList {
         }
         return null;
     }
-
-
-
 }
