@@ -1,5 +1,5 @@
-package com.example.app.service;
+// package com.example.app.service;
 
-public class ServiceTriggerTest {
+// public class ServiceTriggerTest {
     
-}
+// }

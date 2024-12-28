@@ -18,3 +18,9 @@ google:
     certurl: ${AUTH_PROVIDER_CERT_URL}
     redirecturi: ${REDIRECT_URI}
     token: ${LONG_TERM_TOKEN}
+youtube:
+  channel:
+    channelid: ${CHANNELID}
+  data:
+    api:
+      endpoint: ${ENDPOINT}

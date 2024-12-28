@@ -1,6 +1,9 @@
 package com.example.app.service;
 
 import java.io.File;
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,30 +12,71 @@ import org.springframework.stereotype.Service;
 @Service
 public class ServiceTrigger {
     private static final Logger log = LoggerFactory.getLogger(ServiceTrigger.class);
+    private AccessToken AccessToken;
+    private GetAllVideoIds GetAllVideoIds;
+    private GetNewVideosList getNewVideosList;
+
+
 
     @Value("${spring.profiles.active}")
     private String environment;
 
-    public ServiceTrigger(){
+    @Value("${google.api.clientid}")
+    private String clientId;
 
+    @Value("${google.api.clientsecret}")
+    private String clientSecret;
+
+    @Value("${google.api.authuri}")
+    private String authUri;
+
+    @Value("${google.api.tokenuri}")
+    private String tokenUri;
+
+    @Value("${google.api.certurl}")
+    private String certUrl;
+
+    @Value("${google.api.redirecturi}")
+    private String redirectUri;
+
+    @Value("${google.api.token}")
+    private String LongLivedToken;
+
+    @Value("${youtube.channel.channelid}")
+    private String channelId;
+
+    @Value("${youtube.data.api.endpoint}")
+    private String endpoint;
+
+    @Value("${aws.s3.bucket.raw}")
+    String rawBucketName;
+
+    @Value("${aws.s3.key.raw}")
+    String rawBucketKey;
+
+    public ServiceTrigger(AccessToken AccessToken, GetAllVideoIds GetAllVideoIds, GetNewVideosList getNewVideosList){
+        this.AccessToken = AccessToken;
+        this.GetAllVideoIds = GetAllVideoIds;
+        this.getNewVideosList = getNewVideosList;
     }
 
     public void TriggerService(){
         //Initialization Logs
         log.info("The Active Environment is set to: " + environment);
-        log.info("Begining to Collect Contents of Fun Fact form S3 Bucket");
+        log.info("Begining to download the Youtube Video Data");
+        try{
 
         //Trigger Services
+        //1. Get refresh Token
+        String accessToken = AccessToken.getAccessToken(clientId, clientSecret, authUri, tokenUri, LongLivedToken);
 
-        //2. Get refresh Token
+        //2. Get List of all video ID's
+        List<String> allVideos = GetAllVideoIds.fetchVideoID(accessToken, channelId, endpoint);
 
+        //3. Get List of all new Video ID's(Not already saved in S3)
+        List<String> newVideos = getNewVideosList.newVideos(allVideos, rawBucketName, rawBucketKey);
 
-        //3. Authenticate with Youtube
-
-
-        //4. Pull Data save to Json file, return Json file
-
-        //5. Save the file to raw s3 bucket
+        //4. Make Request to video endpoint for each video and save to S3 as a new file in format<videoId>-<timestamp>.json
 
         //Log Completion
         log.info("The Service has successfully complete, new data has been landed in the landing bucket!");
@@ -41,5 +85,9 @@ public class ServiceTrigger {
         //TODO Task 6: implement unit testing
 
         //TODO Figure out how to havethis log to logging bucket without causing a failure 
+        } catch (Exception e){
+            log.error("Error Triggering Service:", e);
+            //TODO s3LoggingService.logMessageToS3("Succcess: Success occured at: " + LocalDateTime.now() + " On: youtube-service-5" + ",");
+        }
     }
 }
