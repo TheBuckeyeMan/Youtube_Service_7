@@ -19,16 +19,22 @@ public class GetAllVideoIds {
     public List<String> fetchVideoID(String accessToken, String channelId, String endpoint) {
         log.info("Beginning to gather new YouTube videos");
         List<String> videoIds = new ArrayList<>();
+        String pageToken = null;
 
         try {
             OkHttpClient client = new OkHttpClient();
 
+            do{
             // Build the request URL
             HttpUrl.Builder urlBuilder = HttpUrl.parse(endpoint).newBuilder();
             urlBuilder.addQueryParameter("part", "id");
             urlBuilder.addQueryParameter("channelId", channelId);
             urlBuilder.addQueryParameter("type", "video");
             urlBuilder.addQueryParameter("maxResults", "50");
+
+            if (pageToken != null){
+                urlBuilder.addQueryParameter("pageToken", pageToken);
+            }
 
             // Build the request
             Request request = new Request.Builder()
@@ -58,6 +64,11 @@ public class GetAllVideoIds {
                 String videoId = idObject.get("videoId").getAsString();
                 videoIds.add(videoId);
             }
+
+            //Get The Next Page Token
+            pageToken = jsonResponse.has("nextPageToken") ? jsonResponse.get("nextPageToken").getAsString() : null;
+
+        } while (pageToken != null);
             log.info("Successfully fetched {} video IDs.", videoIds.size());
         } catch (Exception e) {
             log.error("Error fetching YouTube video IDs", e);

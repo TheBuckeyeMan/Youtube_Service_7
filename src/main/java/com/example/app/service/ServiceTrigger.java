@@ -12,10 +12,10 @@ public class ServiceTrigger {
     private static final Logger log = LoggerFactory.getLogger(ServiceTrigger.class);
     private AccessToken AccessToken;
     private GetAllVideoIds GetAllVideoIds;
-    private GetNewVideosList getNewVideosList;
     private GetDataSaveToS3 getDataSaveToS3;
 
-//TODO Update Old Videos With New Data
+//TODO Host this on AWS ECS if we plan on selling this service
+//Lambda will only get us like 2k records
 
     @Value("${spring.profiles.active}")
     private String environment;
@@ -56,10 +56,9 @@ public class ServiceTrigger {
     @Value("${youtube.data.api.videoendpoint}")
     private String videoEndpoint;
 
-    public ServiceTrigger(AccessToken AccessToken, GetAllVideoIds GetAllVideoIds, GetNewVideosList getNewVideosList, GetDataSaveToS3 getDataSaveToS3){
+    public ServiceTrigger(AccessToken AccessToken, GetAllVideoIds GetAllVideoIds, GetDataSaveToS3 getDataSaveToS3){
         this.AccessToken = AccessToken;
         this.GetAllVideoIds = GetAllVideoIds;
-        this.getNewVideosList = getNewVideosList;
         this.getDataSaveToS3 = getDataSaveToS3;
     }
 
@@ -76,19 +75,16 @@ public class ServiceTrigger {
         //2. Get List of all video ID's
         List<String> allVideos = GetAllVideoIds.fetchVideoID(accessToken, channelId, endpoint);
 
-        //3. Get List of all new Video ID's(Not already saved in S3)
-        List<String> newVideos = getNewVideosList.newVideos(allVideos, rawBucketName, rawBucketKey);
-
-        //4. Make Request to video endpoint for each video and save to S3 as a new file in format<videoId>-<timestamp>.json
-        getDataSaveToS3.saveVideos(newVideos, accessToken, videoEndpoint, rawBucketName, rawBucketKey);
+        //3. Make Request to video endpoint for each video and save to S3 as a new file in format<videoId>-<timestamp>.json
+        getDataSaveToS3.saveVideos(allVideos, accessToken, videoEndpoint, rawBucketName, rawBucketKey);
 
         //Log Completion
+        log.info("The total number of videos saved is: " + allVideos.size());
         log.info("The Service has successfully complete, new data has been landed in the landing bucket!");
         log.info("Final: The Lambda has triggered successfully and the data is now saved!");
 
         //TODO Task 6: implement unit testing
 
-        //TODO Figure out how to havethis log to logging bucket without causing a failure 
         } catch (Exception e){
             log.error("Error Triggering Service:", e);
             //TODO s3LoggingService.logMessageToS3("Succcess: Success occured at: " + LocalDateTime.now() + " On: youtube-service-5" + ",");
