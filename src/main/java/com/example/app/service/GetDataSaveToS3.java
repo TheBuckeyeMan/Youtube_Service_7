@@ -133,8 +133,7 @@ public class GetDataSaveToS3 {
         log.info("Saving: " + videoId + " to the Raw S3 Bucket");
 
         //Configure the File name
-        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
-        String fileName = String.format("%s~%s.json", videoId, timestamp);
+        String fileName = String.format("%s.json", videoId);
         String s3Key = rawBucketKey + fileName;
 
         try{
