@@ -75,7 +75,7 @@ public class ServiceTrigger {
         //2. Get List of all video ID's
         List<String> allVideos = GetAllVideoIds.fetchVideoID(accessToken, channelId, endpoint);
 
-        //3. Make Request to video endpoint for each video and save to S3 as a new file in format<videoId>-<timestamp>.json
+        //3. Make Request to video endpoint for each video and save to S3 as a new file in format<videoId>.json
         getDataSaveToS3.saveVideos(allVideos, accessToken, videoEndpoint, rawBucketName, rawBucketKey);
 
         //Log Completion
