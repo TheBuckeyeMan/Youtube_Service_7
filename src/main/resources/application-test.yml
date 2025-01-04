@@ -1,0 +1,10 @@
+spring:
+  test: "Test-test"
+aws:
+  s3:
+    bucket:
+      raw: ${RAW_BUCKET}
+      logging: ${LOGGING_BUCKET}
+    key:
+      raw: ${RAW_KEY}
+      
