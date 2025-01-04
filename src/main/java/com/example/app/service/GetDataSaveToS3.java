@@ -95,10 +95,12 @@ public class GetDataSaveToS3 {
         JsonObject statistics = video.getAsJsonObject("statistics");
         JsonObject contentDetails = video.getAsJsonObject("contentDetails");
         JsonObject status = video.getAsJsonObject("status");
+        String videoUrl = "https://www.youtube.com/watch?v=" + videoId;
 
         //Build the flattened object to save to S3 bucket
         JsonObject flattened = new JsonObject();
         flattened.addProperty("videoId", video.get("id").getAsString());
+        flattened.addProperty("videoUrl", videoUrl);
         flattened.addProperty("publishedAt", snippet.get("publishedAt").getAsString());
         flattened.addProperty("channelId", snippet.get("channelId").getAsString());
         flattened.addProperty("title", snippet.get("title").getAsString());
